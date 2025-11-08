@@ -1,0 +1,67 @@
+name: ln247_mobile
+description: LN247 Mobile News & TV App
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State management
+  provider: ^6.1.1
+  
+  # Video playback
+  video_player: ^2.8.1
+  chewie: ^1.7.4
+  
+  # HTTP requests
+  http: ^1.1.2
+  
+  # HTML rendering
+  flutter_html: ^3.0.0-beta.2
+  
+  # Images
+  cached_network_image: ^3.3.0
+  
+  # Connectivity
+  connectivity_plus: ^5.0.2
+  
+  # Date formatting
+  intl: ^0.18.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutter_native_splash: ^2.3.10
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/video/bg_loop.mp4
+    - assets/images/ln247_logo.png
+  
+  fonts:
+    - family: Barlow
+      fonts:
+        - asset: assets/fonts/Barlow-ExtraBold.ttf
+          weight: 800
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  android: true
+  ios: true
+  android_12:
+    color: "#FFFFFF"
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/ln247_icon.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/ln247_icon.png"
