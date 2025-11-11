@@ -1,1 +1,2 @@
 Placeholder to allow Git commit
+Progress has been made with the news feed page
