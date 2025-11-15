@@ -2,3 +2,4 @@ Placeholder to allow Git commit
 Progress has been made with the news feed page
 Pre-redecoration commit just before i fix the news categories
 A new commit after the android keystore has been verified
+new commit
