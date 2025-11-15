@@ -40,6 +40,33 @@ class LN247App extends StatelessWidget {
           primarySwatch: Colors.blue,
           fontFamily: 'Barlow',
           brightness: Brightness.dark,
+          // Global button style
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(const Color(0xFFFFA722)),
+              foregroundColor: MaterialStateProperty.all(Colors.black),
+              textStyle: MaterialStateProperty.all(
+                const TextStyle(
+                  fontFamily: 'Barlow',
+                  fontWeight: FontWeight.normal,
+                  letterSpacing: 1.0,
+                  // Make uppercase via button label later
+                ),
+              ),
+            ),
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: ButtonStyle(
+              foregroundColor: MaterialStateProperty.all(Colors.black),
+              textStyle: MaterialStateProperty.all(
+                const TextStyle(
+                  fontFamily: 'Barlow',
+                  fontWeight: FontWeight.normal,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ),
+          ),
         ),
         home: const SplashScreen(),
       ),

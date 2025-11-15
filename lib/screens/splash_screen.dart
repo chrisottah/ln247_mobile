@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen>
   // Animation state
   bool _showAnimation = false;
   final List<String> _letters = ['L', 'N', '2', '4', '7'];
-  final String _tagline = "where the story goes, we go";
+  final String _tagline = "WHERE THE STORY GOES, WE GO";
   List<String> _taglineWords = [];
 
   @override

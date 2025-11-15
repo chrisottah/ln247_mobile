@@ -14,26 +14,33 @@ class _TVPlayerScreenState extends State<TVPlayerScreen> {
   ChewieController? _chewieController;
   bool _isLoading = true;
   String? _errorMessage;
+  String _currentStation = 'International';
 
-  final String _hlsUrl =
-      'https://zkpywpwalbeg-hls-live.5centscdn.com/LN247news/7f46165474d11ee5836777d85df2cdab.sdp/playlist.m3u8';
+  final Map<String, String> stations = {
+    'International': 'https://zkpywpwalbeg-hls-live.5centscdn.com/LN247news/7f46165474d11ee5836777d85df2cdab.sdp/playlist.m3u8',
+    'Lagos': 'https://cdn-out1-los1.internetmultimediaonline.org/ln247/stream2/playlist.m3u8',
+    'Abuja': 'https://cdn-out1-los1.internetmultimediaonline.org/ln247/stream3/playlist.m3u8',
+    'Africa': 'https://cdn-out1-los1.internetmultimediaonline.org/ln247/stream4/playlist.m3u8',
+    'Portharcourt': 'https://cdn-out1-los1.internetmultimediaonline.org/ln247/stream5/playlist.m3u8',
+  };
 
   @override
   void initState() {
     super.initState();
-    _initializePlayer();
+    _initializePlayer(stations[_currentStation]!);
   }
 
-  Future<void> _initializePlayer() async {
-    try {
-      print('[TVPlayer] Initializing HLS stream: $_hlsUrl');
-      
-      _videoController = VideoPlayerController.networkUrl(
-        Uri.parse(_hlsUrl),
-      );
+  Future<void> _initializePlayer(String url) async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
+    try {
+      _videoController = VideoPlayerController.networkUrl(Uri.parse(url));
       await _videoController.initialize();
 
+      _chewieController?.dispose();
       _chewieController = ChewieController(
         videoPlayerController: _videoController,
         autoPlay: true,
@@ -41,59 +48,14 @@ class _TVPlayerScreenState extends State<TVPlayerScreen> {
         aspectRatio: _videoController.value.aspectRatio,
         allowFullScreen: true,
         allowMuting: true,
-        showControls: true,
-        materialProgressColors: ChewieProgressColors(
-          playedColor: const Color(0xFF00AEEF),
-          handleColor: const Color(0xFF00AEEF),
-          backgroundColor: Colors.grey.shade800,
-          bufferedColor: Colors.grey.shade600,
-        ),
-        placeholder: Container(
-          color: Colors.black,
-          child: const Center(
-            child: CircularProgressIndicator(
-              color: Color(0xFF00AEEF),
-            ),
-          ),
-        ),
-        errorBuilder: (context, errorMessage) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                const SizedBox(height: 16),
-                Text(
-                  'Error loading stream',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontFamily: 'Barlow',
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  errorMessage,
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          );
-        },
       );
 
       if (mounted) {
         setState(() {
           _isLoading = false;
-          print('[TVPlayer] Stream initialized successfully');
         });
       }
     } catch (e) {
-      print('[TVPlayer] Error initializing stream: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -101,6 +63,13 @@ class _TVPlayerScreenState extends State<TVPlayerScreen> {
         });
       }
     }
+  }
+
+  void _switchStation(String station) {
+    setState(() {
+      _currentStation = station;
+    });
+    _initializePlayer(stations[station]!);
   }
 
   @override
@@ -112,85 +81,84 @@ class _TVPlayerScreenState extends State<TVPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Always show buttons for all stations except the currently playing
+    List<String> buttonsToShow = stations.keys
+        .where((s) => s != _currentStation)
+        .toList();
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text(
-          'LN247 TV',
-          style: TextStyle(
+        title: Text(
+          'LN247 ${_currentStation.toUpperCase()}',
+          style: const TextStyle(
             fontFamily: 'Barlow',
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.normal,
           ),
         ),
         backgroundColor: Colors.black,
         elevation: 0,
+        leading: _currentStation != 'International'
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => _switchStation('International'),
+              )
+            : null,
       ),
-      body: Center(
-        child: _isLoading
-            ? const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(
-                    color: Color(0xFF00AEEF),
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: _isLoading
+                  ? const CircularProgressIndicator(color: Color(0xFFFFA722))
+                  : _errorMessage != null
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Failed to load stream',
+                              style: TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                            Text(
+                              _errorMessage!,
+                              style: const TextStyle(color: Colors.white70, fontSize: 14),
+                              textAlign: TextAlign.center,
+                            ),
+                            ElevatedButton(
+                              onPressed: () => _initializePlayer(stations[_currentStation]!),
+                              child: const Text('Retry'),
+                            )
+                          ],
+                        )
+                      : Chewie(controller: _chewieController!),
+            ),
+          ),
+          // Station buttons always visible
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            child: Wrap(
+              spacing: 12,
+              children: buttonsToShow.map((station) {
+                return ElevatedButton(
+                  onPressed: () => _switchStation(station),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFA722),
+                    foregroundColor: Colors.black,
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Loading stream...',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+                  child: Text(
+                    station.toUpperCase(),
+                    style: const TextStyle(
                       fontFamily: 'Barlow',
+                      fontWeight: FontWeight.normal,
                     ),
                   ),
-                ],
-              )
-            : _errorMessage != null
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline,
-                          size: 64, color: Colors.red),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Failed to load stream',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontFamily: 'Barlow',
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32),
-                        child: Text(
-                          _errorMessage!,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _isLoading = true;
-                            _errorMessage = null;
-                          });
-                          _initializePlayer();
-                        },
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Retry'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00AEEF),
-                        ),
-                      ),
-                    ],
-                  )
-                : _chewieController != null
-                    ? Chewie(controller: _chewieController!)
-                    : const SizedBox.shrink(),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
       ),
     );
   }

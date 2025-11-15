@@ -45,6 +45,7 @@ flutter:
   assets:
     - assets/video/bg_loop.mp4
     - assets/images/ln247_logo.png
+    - assets/images/ln247_header_image.png
   
   fonts:
     - family: Barlow

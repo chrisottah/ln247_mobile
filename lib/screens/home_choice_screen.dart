@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'tv_player_screen.dart';
 import 'news_feed_screen.dart';
+import 'splash_screen.dart'; // for navigating back to sign in
 
 class HomeChoiceScreen extends StatefulWidget {
   final VideoPlayerController? videoController;
@@ -22,7 +23,7 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
     super.initState();
     _videoController = widget.videoController;
     _videoInitialized = _videoController?.value.isInitialized ?? false;
-    
+
     if (!_videoInitialized) {
       _initializeVideo();
     }
@@ -65,7 +66,6 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
 
   void _handleSignIn() {
     print('[HomeChoice] Sign In tapped');
-    // TODO: Implement sign in logic
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Sign In - Coming Soon')),
     );
@@ -73,7 +73,6 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
 
   void _handleKingsChat() {
     print('[HomeChoice] Continue with KingsChat tapped');
-    // TODO: Implement KingsChat OAuth
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('KingsChat Login - Coming Soon')),
     );
@@ -88,12 +87,18 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
     );
   }
 
-  void _handleReadNews() {
-    print('[HomeChoice] Read News selected');
+  void _handleSeeNews() {
+    print('[HomeChoice] See News Updates selected');
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const NewsFeedScreen(),
+        builder: (context) => const NewsFeedScreen(currentIndex: 0),
       ),
+    );
+  }
+
+  void _handleBackToSignIn() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const SplashScreen()),
     );
   }
 
@@ -147,7 +152,7 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Sign In / Sign Up button
+            // SIGN IN / SIGN UP button
             SizedBox(
               width: double.infinity,
               height: 56,
@@ -162,7 +167,7 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
                   elevation: 4,
                 ),
                 child: const Text(
-                  'Sign In / Sign Up',
+                  'SIGN IN / SIGN UP',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -173,7 +178,7 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Login using KingsChat button
+            // LOGIN USING KINGSCHAT button
             SizedBox(
               width: double.infinity,
               height: 56,
@@ -188,7 +193,7 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
                   elevation: 4,
                 ),
                 child: const Text(
-                  'Login using KingsChat',
+                  'LOGIN USING KINGSCHAT',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -199,44 +204,19 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Skip / Remind me later
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: _handleSkip,
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white.withOpacity(0.7),
-                  ),
-                  child: const Text(
-                    'skip',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Barlow',
-                    ),
-                  ),
+            // SKIP, REMIND ME LATER text
+            TextButton(
+              onPressed: _handleSkip, // navigates to HomeChoiceScreen
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white.withOpacity(0.7),
+              ),
+              child: const Text(
+                'SKIP, REMIND ME LATER',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Barlow',
                 ),
-                Text(
-                  ', ',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 14,
-                  ),
-                ),
-                TextButton(
-                  onPressed: _handleRemindLater,
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white.withOpacity(0.7),
-                  ),
-                  child: const Text(
-                    'remind me later',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Barlow',
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),
@@ -255,9 +235,18 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
             // Watch LN247 TV button
             SizedBox(
               width: double.infinity,
-              height: 120,
-              child: ElevatedButton(
+              height: 70,
+              child: ElevatedButton.icon(
                 onPressed: _handleWatchTV,
+                icon: const Icon(Icons.tv, size: 32),
+                label: const Text(
+                  'WATCH LIVE TV',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Barlow',
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white.withOpacity(0.15),
                   foregroundColor: Colors.white,
@@ -269,32 +258,27 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
                     ),
                   ),
                   elevation: 4,
-                ),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.tv, size: 48),
-                    SizedBox(height: 8),
-                    Text(
-                      'Watch LN247 TV',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        fontFamily: 'Barlow',
-                      ),
-                    ),
-                  ],
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
             const SizedBox(height: 24),
 
-            // Read News Stories button
+            // See News Updates button
             SizedBox(
               width: double.infinity,
-              height: 120,
-              child: ElevatedButton(
-                onPressed: _handleReadNews,
+              height: 70,
+              child: ElevatedButton.icon(
+                onPressed: _handleSeeNews,
+                icon: const Icon(Icons.article, size: 32),
+                label: const Text(
+                  'SEE NEWS UPDATES',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Barlow',
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white.withOpacity(0.15),
                   foregroundColor: Colors.white,
@@ -306,21 +290,23 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
                     ),
                   ),
                   elevation: 4,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.article, size: 48),
-                    SizedBox(height: 8),
-                    Text(
-                      'Read News Stories',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        fontFamily: 'Barlow',
-                      ),
-                    ),
-                  ],
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // Back to Sign Up / Sign In
+            TextButton(
+              onPressed: _handleBackToSignIn,
+              child: const Text(
+                'BACK TO SIGN UP/SIGN IN',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Barlow',
+                  color: Colors.white,
+                  decoration: TextDecoration.underline,
                 ),
               ),
             ),
