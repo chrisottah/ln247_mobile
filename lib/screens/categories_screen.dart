@@ -114,7 +114,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             itemBuilder: (context, index) {
               final category = categories[index];
               final categoryName = category['name'] ?? 'Unknown';
-              final postCount = category['count'] ?? 0;
 
               return Container(
                 margin: const EdgeInsets.symmetric(
@@ -157,13 +156,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  subtitle: Text(
-                    '$postCount posts',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                    ),
-                  ),
                   trailing: const Icon(
                     Icons.chevron_right,
                     color: Colors.grey,
@@ -175,6 +167,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         builder: (_) => NewsFeedScreen(
                           currentIndex: 1,
                           categoryId: category['id'],
+                          categoryName: categoryName,
                         ),
                       ),
                     );

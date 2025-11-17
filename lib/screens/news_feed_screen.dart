@@ -11,11 +11,13 @@ import 'profile_screen.dart';
 class NewsFeedScreen extends StatefulWidget {
   final int currentIndex;
   final int? categoryId;
+  final String? categoryName;
 
   const NewsFeedScreen({
     super.key,
     this.currentIndex = 0,
     this.categoryId,
+    this.categoryName,
   });
 
   @override
@@ -74,7 +76,20 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      appBar: const CustomAppBar(),
+      appBar: widget.categoryId != null
+          ? AppBar(
+              backgroundColor: Colors.white,
+              elevation: 1,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                onPressed: () => Navigator.pop(context),
+              ),
+              title: Text(
+                widget.categoryName ?? 'Category Posts',
+                style: const TextStyle(color: Colors.black87),
+              ),
+            ) as PreferredSizeWidget
+          : const CustomAppBar(),
       body: FutureBuilder<List<dynamic>>(
         future: _postsFuture,
         builder: (context, snapshot) {
@@ -110,10 +125,15 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
             itemCount: posts.length,
             itemBuilder: (context, index) {
               final postData = posts[index];
-              final post = Post.fromJson(postData);
+              // Extract data directly from JSON
+              final title = postData['title']['rendered'];
+              final imageUrl = postData['_embedded']?['wp:featuredmedia']?[0]?['source_url'];
+              final dateStr = postData['date'];
 
               return GestureDetector(
                 onTap: () {
+                  // Convert JSON to Post model
+                  final post = Post.fromJson(postData);
                   // Navigate to article detail
                   Navigator.push(
                     context,
@@ -143,13 +163,13 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (post.featuredImageUrl != null)
+                      if (imageUrl != null)
                         ClipRRect(
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(10),
                           ),
                           child: Image.network(
-                            post.featuredImageUrl!,
+                            imageUrl,
                             fit: BoxFit.cover,
                             width: double.infinity,
                             height: 200,
@@ -166,6 +186,62 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                                 ),
                               );
                             },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 200,
+                                color: Colors.grey.shade200,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.image_not_supported,
+                                        size: 50,
+                                        color: Colors.grey.shade400,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'No Image',
+                                        style: TextStyle(
+                                          color: Colors.grey.shade500,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        )
+                      else
+                        Container(
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(10),
+                            ),
+                          ),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.article,
+                                  size: 50,
+                                  color: Colors.grey.shade400,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'LN247 News',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade500,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       Padding(
@@ -174,7 +250,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              post.title,
+                              title,
                               style: const TextStyle(
                                 color: Colors.black87,
                                 fontSize: 16,
@@ -184,7 +260,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              post.formattedDate,
+                              _formatDate(dateStr),
                               style: TextStyle(
                                 color: Colors.grey.shade600,
                                 fontSize: 12,
@@ -206,5 +282,26 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
         onTap: _onNavTap,
       ),
     );
+  }
+
+  String _formatDate(String dateStr) {
+    try {
+      final date = DateTime.parse(dateStr);
+      final now = DateTime.now();
+      final difference = now.difference(date);
+
+      if (difference.inDays == 0) {
+        if (difference.inHours == 0) {
+          return '${difference.inMinutes}m ago';
+        }
+        return '${difference.inHours}h ago';
+      } else if (difference.inDays < 7) {
+        return '${difference.inDays}d ago';
+      } else {
+        return '${date.day}/${date.month}/${date.year}';
+      }
+    } catch (e) {
+      return '';
+    }
   }
 }

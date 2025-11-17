@@ -16,6 +16,11 @@ dependencies:
   # Video playback
   video_player: ^2.8.1
   chewie: ^1.7.4
+  webview_flutter: ^4.4.2
+  youtube_player_flutter: ^9.0.3 
+
+  # Authentication & Storage
+  shared_preferences: ^2.2.2  # ADD THIS for login persistence
   
   # HTTP requests
   http: ^1.1.2

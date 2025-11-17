@@ -7,6 +7,8 @@ class Post {
   final String excerpt;
   final DateTime date;
   final String? featuredImageUrl;
+  final String? videoUrl;
+  final String postFormat;
 
   Post({
     required this.id,
@@ -15,10 +17,13 @@ class Post {
     required this.excerpt,
     required this.date,
     this.featuredImageUrl,
+    this.videoUrl,
+    this.postFormat = 'standard',
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
     String? imageUrl;
+    String? videoUrl;
     
     // Extract featured image from _embedded
     try {
@@ -29,6 +34,18 @@ class Post {
       }
     } catch (e) {
       print('[Post] Error extracting featured image: $e');
+    }
+
+    // Extract video URL from ACF
+    try {
+      if (json['acf'] != null && json['acf']['video_url'] != null) {
+        videoUrl = json['acf']['video_url'];
+        print('[Post] Found video URL: $videoUrl'); // Debug
+      } else {
+        print('[Post] No ACF video_url found for post ${json['id']}'); // Debug
+      }
+    } catch (e) {
+      print('[Post] Error extracting video URL: $e');
     }
 
     // Clean HTML from title and excerpt
@@ -42,7 +59,38 @@ class Post {
       excerpt: cleanExcerpt,
       date: DateTime.parse(json['date']),
       featuredImageUrl: imageUrl,
+      videoUrl: videoUrl,
+      postFormat: json['format'] ?? 'standard',
     );
+  }
+
+  bool get isVideo => postFormat == 'video' && videoUrl != null && videoUrl!.isNotEmpty;
+
+  String? get videoId {
+    if (videoUrl == null) return null;
+    
+    // Extract Vimeo ID
+    if (videoUrl!.contains('vimeo.com')) {
+      final vimeoRegex = RegExp(r'vimeo\.com\/(\d+)');
+      final match = vimeoRegex.firstMatch(videoUrl!);
+      return match?.group(1);
+    }
+    
+    // Extract YouTube ID
+    if (videoUrl!.contains('youtube.com') || videoUrl!.contains('youtu.be')) {
+      final youtubeRegex = RegExp(r'(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)');
+      final match = youtubeRegex.firstMatch(videoUrl!);
+      return match?.group(1);
+    }
+    
+    return null;
+  }
+
+  String? get videoType {
+    if (videoUrl == null) return null;
+    if (videoUrl!.contains('vimeo.com')) return 'vimeo';
+    if (videoUrl!.contains('youtube.com') || videoUrl!.contains('youtu.be')) return 'youtube';
+    return null;
   }
 
   static String _stripHtml(String html) {

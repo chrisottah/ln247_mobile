@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../models/post_model.dart';
 import '../widgets/custom_bottom_nav_bar.dart';
 import '../widgets/custom_app_bar.dart';
+import '../widgets/video_player_widget.dart';
 import 'news_feed_screen.dart';
 import 'categories_screen.dart';
 import 'videos_screen.dart';
@@ -57,6 +58,13 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
   Widget build(BuildContext context) {
     final post = widget.post;
 
+    // Debug: Check if post is video
+    print('[ArticleDetail] Post ID: ${post.id}');
+    print('[ArticleDetail] Is Video: ${post.isVideo}');
+    print('[ArticleDetail] Video URL: ${post.videoUrl}');
+    print('[ArticleDetail] Video Type: ${post.videoType}');
+    print('[ArticleDetail] Video ID: ${post.videoId}');
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: CustomScrollView(
@@ -67,8 +75,14 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
             backgroundColor: Colors.white,
             iconTheme: const IconThemeData(color: Colors.black87),
             flexibleSpace: FlexibleSpaceBar(
-              background: post.featuredImageUrl != null
-                  ? Stack(
+              background: post.isVideo
+                  ? VideoPlayerWidget(
+                      videoUrl: post.videoUrl!,
+                      videoId: post.videoId,
+                      videoType: post.videoType,
+                    )
+                  : post.featuredImageUrl != null
+                      ? Stack(
                       fit: StackFit.expand,
                       children: [
                         CachedNetworkImage(

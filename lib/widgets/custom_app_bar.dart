@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../screens/tv_player_screen.dart';
+import '../screens/search_screen.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
