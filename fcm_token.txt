@@ -1,0 +1,10 @@
+FCM TOKEN FOR LN247 MOBILE APP
+Generated: [Current Date]
+
+TOKEN:
+corcRCEnRIiKg_iZ29rQ8w:APA91bEdOQOGK7U5gp_Nflg4rGTJOrTrt8aKajoGHIgFgA3GUQ_AsBB5xj2_GYsS-m7fQpY2lqx7UN2LfyxDzb-acpCgZqCCVcLPibBAM_lSxpcwJS2I0IY
+
+INSTRUCTIONS:
+1. Copy this token for WordPress push notification setup
+2. Use with OneSignal plugin or similar
+3. This token is unique to this device/installation

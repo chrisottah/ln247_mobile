@@ -37,6 +37,12 @@ dependencies:
   # Date formatting
   intl: ^0.18.1
 
+  # Firebase (ADD THESE 2 LINES)
+  firebase_core: ^2.24.0
+  firebase_messaging: ^14.7.0
+
+  onesignal_flutter: ^5.3.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
