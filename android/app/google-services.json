@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1033804531588",
+    "project_id": "ln247-ca7fa",
+    "storage_bucket": "ln247-ca7fa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1033804531588:android:96d9b7816d84334620ffd1",
+        "android_client_info": {
+          "package_name": "com.ln247.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCw4NGPa8UL6AKqoTaBQazXx5Rayk4Z6-c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

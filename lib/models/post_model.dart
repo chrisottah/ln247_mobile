@@ -9,6 +9,8 @@ class Post {
   final String? featuredImageUrl;
   final String? videoUrl;
   final String postFormat;
+  final int authorId;
+  final String? authorName;
 
   Post({
     required this.id,
@@ -19,11 +21,14 @@ class Post {
     this.featuredImageUrl,
     this.videoUrl,
     this.postFormat = 'standard',
+    this.authorId = 0,
+    this.authorName,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
     String? imageUrl;
     String? videoUrl;
+    String? authorName;
     
     // Extract featured image from _embedded
     try {
@@ -34,6 +39,17 @@ class Post {
       }
     } catch (e) {
       print('[Post] Error extracting featured image: $e');
+    }
+
+    // Extract author name from _embedded
+    try {
+      if (json['_embedded'] != null && 
+          json['_embedded']['author'] != null &&
+          json['_embedded']['author'].isNotEmpty) {
+        authorName = json['_embedded']['author'][0]['name'];
+      }
+    } catch (e) {
+      print('[Post] Error extracting author name: $e');
     }
 
     // Extract video URL from ACF
@@ -61,6 +77,8 @@ class Post {
       featuredImageUrl: imageUrl,
       videoUrl: videoUrl,
       postFormat: json['format'] ?? 'standard',
+      authorId: json['author'] ?? 0,
+      authorName: authorName,
     );
   }
 
