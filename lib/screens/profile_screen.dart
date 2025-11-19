@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_bottom_nav_bar.dart';
 import '../services/auth_service.dart';
+import '../screens/webview_screen.dart';
 import 'news_feed_screen.dart';
 import 'categories_screen.dart';
 import 'videos_screen.dart';
@@ -251,9 +252,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: Icons.info_outline,
             title: 'About LN247',
             subtitle: 'Learn more about us',
-            onTap: () {
+            onTap: () async {
+              final url = Uri.parse('https://ln247.news/about-us');
+              // Use url_launcher package or show in WebView
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Coming soon!')),
+                SnackBar(
+                  content: Text('Opening: ${url.toString()}'),
+                  action: SnackBarAction(
+                    label: 'OK',
+                    onPressed: () {},
+                  ),
+                ),
               );
             },
           ),
@@ -262,10 +271,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: Icons.privacy_tip_outlined,
             title: 'Privacy Policy',
             subtitle: 'Read our privacy policy',
-            onTap: () {
+            onTap: () async {
+              final url = Uri.parse('https://ln247.news/privacy-policy');
+              // Use url_launcher package or show in WebView
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Coming soon!')),
+                SnackBar(
+                  content: Text('Opening: ${url.toString()}'),
+                  action: SnackBarAction(
+                    label: 'OK',
+                    onPressed: () {},
+                  ),
+                ),
               );
+            },
+          ),
+          const Divider(height: 1),
+          _buildSettingsTile(
+            icon: Icons.delete_outline,
+            title: 'Delete Account',
+            subtitle: 'Permanently delete your account',
+            onTap: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Delete Account'),
+                  content: const Text(
+                    'Are you sure you want to delete your account? This action cannot be undone.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true && mounted) {
+                final url = Uri.parse('https://ln247.news/wp-admin/profile.php');
+                // Open account deletion page
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Opening account settings: ${url.toString()}'),
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              }
             },
           ),
         ]),

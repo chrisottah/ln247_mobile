@@ -125,16 +125,11 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
             itemCount: posts.length,
             itemBuilder: (context, index) {
               final postData = posts[index];
-              // Extract data directly from JSON
-              final title = postData['title']['rendered'];
+              final post = Post.fromJson(postData);
               final imageUrl = postData['_embedded']?['wp:featuredmedia']?[0]?['source_url'];
-              final dateStr = postData['date'];
 
               return GestureDetector(
                 onTap: () {
-                  // Convert JSON to Post model
-                  final post = Post.fromJson(postData);
-                  // Navigate to article detail
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -250,7 +245,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              title,
+                              post.title,
                               style: const TextStyle(
                                 color: Colors.black87,
                                 fontSize: 16,
@@ -260,7 +255,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              _formatDate(dateStr),
+                              post.formattedDate,
                               style: TextStyle(
                                 color: Colors.grey.shade600,
                                 fontSize: 12,
@@ -282,26 +277,5 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
         onTap: _onNavTap,
       ),
     );
-  }
-
-  String _formatDate(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      final now = DateTime.now();
-      final difference = now.difference(date);
-
-      if (difference.inDays == 0) {
-        if (difference.inHours == 0) {
-          return '${difference.inMinutes}m ago';
-        }
-        return '${difference.inHours}h ago';
-      } else if (difference.inDays < 7) {
-        return '${difference.inDays}d ago';
-      } else {
-        return '${date.day}/${date.month}/${date.year}';
-      }
-    } catch (e) {
-      return '';
-    }
   }
 }

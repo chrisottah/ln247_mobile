@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import '../services/auth_service.dart';
 import 'tv_player_screen.dart';
 import 'news_feed_screen.dart';
-import 'splash_screen.dart'; // for navigating back to sign in
+import 'login_screen.dart';
+import 'splash_screen.dart';
 
 class HomeChoiceScreen extends StatefulWidget {
   final VideoPlayerController? videoController;
@@ -17,10 +19,27 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
   VideoPlayerController? _videoController;
   bool _showSignInButtons = true;
   bool _videoInitialized = false;
+  bool _isCheckingAuth = true;
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
     super.initState();
+    _checkAuthAndInitialize();
+  }
+
+  Future<void> _checkAuthAndInitialize() async {
+    // Check if user is logged in
+    final isLoggedIn = await _authService.isLoggedIn();
+    
+    if (mounted) {
+      setState(() {
+        _showSignInButtons = !isLoggedIn; // Show main choices if logged in
+        _isCheckingAuth = false;
+      });
+    }
+
+    // Initialize video
     _videoController = widget.videoController;
     _videoInitialized = _videoController?.value.isInitialized ?? false;
 
@@ -65,16 +84,21 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
   }
 
   void _handleSignIn() {
-    print('[HomeChoice] Sign In tapped');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sign In - Coming Soon')),
+    print('[HomeChoice] Sign In tapped - navigating to LoginScreen');
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      ),
     );
   }
 
   void _handleKingsChat() {
     print('[HomeChoice] Continue with KingsChat tapped');
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('KingsChat Login - Coming Soon')),
+      const SnackBar(
+        content: Text('KingsChat Login - Coming in future update'),
+        backgroundColor: Colors.orangeAccent,
+      ),
     );
   }
 
@@ -97,9 +121,10 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
   }
 
   void _handleBackToSignIn() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const SplashScreen()),
-    );
+    print('[HomeChoice] Back to sign in - showing sign in buttons');
+    setState(() {
+      _showSignInButtons = true;
+    });
   }
 
   @override
@@ -132,13 +157,21 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
             color: Colors.black.withOpacity(0.45),
           ),
 
+          // Show loading while checking auth
+          if (_isCheckingAuth)
+            const Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
+              ),
+            )
           // Animated content switcher
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 600),
-            child: _showSignInButtons
-                ? _buildSignInButtons()
-                : _buildMainChoices(),
-          ),
+          else
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 600),
+              child: _showSignInButtons
+                  ? _buildSignInButtons()
+                  : _buildMainChoices(),
+            ),
         ],
       ),
     );
@@ -206,7 +239,7 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
 
             // SKIP, REMIND ME LATER text
             TextButton(
-              onPressed: _handleSkip, // navigates to HomeChoiceScreen
+              onPressed: _handleSkip,
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white.withOpacity(0.7),
               ),
@@ -295,20 +328,35 @@ class _HomeChoiceScreenState extends State<HomeChoiceScreen> {
               ),
             ),
 
-            const SizedBox(height: 12),
-
-            // Back to Sign Up / Sign In
-            TextButton(
-              onPressed: _handleBackToSignIn,
-              child: const Text(
-                'BACK TO SIGN UP/SIGN IN',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: 'Barlow',
-                  color: Colors.white,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
+            // Only show "Back to Sign In" if user came from skip/remind later
+            // Not shown if user is logged in
+            FutureBuilder<bool>(
+              future: _authService.isLoggedIn(),
+              builder: (context, snapshot) {
+                final isLoggedIn = snapshot.data ?? false;
+                
+                if (isLoggedIn) {
+                  return const SizedBox.shrink(); // Don't show if logged in
+                }
+                
+                return Column(
+                  children: [
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: _handleBackToSignIn,
+                      child: const Text(
+                        'BACK TO SIGN UP/SIGN IN',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: 'Barlow',
+                          color: Colors.white,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),

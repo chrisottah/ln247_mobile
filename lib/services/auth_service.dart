@@ -151,9 +151,26 @@ class AuthService {
 
   // Check if user is logged in
   Future<bool> isLoggedIn() async {
-    final token = await getToken();
-    if (token == null) return false;
-    return await validateToken();
+    try {
+      final token = await getToken();
+      print('[Auth] Checking login status...');
+      print('[Auth] Token exists: ${token != null}');
+      
+      if (token == null) {
+        print('[Auth] No token found - user not logged in');
+        return false;
+      }
+      
+      // Instead of validating token, try to get current user
+      // This is more reliable than validate endpoint
+      final user = await getCurrentUser();
+      final isValid = user != null;
+      print('[Auth] User data retrieved: $isValid');
+      return isValid;
+    } catch (e) {
+      print('[Auth] Error checking login status: $e');
+      return false;
+    }
   }
 
   // Logout
