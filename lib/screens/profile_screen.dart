@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_bottom_nav_bar.dart';
 import '../services/auth_service.dart';
+import '../services/notification_service.dart';
 import '../screens/webview_screen.dart';
 import 'news_feed_screen.dart';
 import 'categories_screen.dart';
@@ -252,15 +253,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: Icons.info_outline,
             title: 'About LN247',
             subtitle: 'Learn more about us',
-            onTap: () async {
-              final url = Uri.parse('https://ln247.news/about-us');
-              // Use url_launcher package or show in WebView
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Opening: ${url.toString()}'),
-                  action: SnackBarAction(
-                    label: 'OK',
-                    onPressed: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const WebViewScreen(
+                    url: 'https://ln247.news/about-us/',
+                    title: 'About Us',
                   ),
                 ),
               );
@@ -271,15 +270,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: Icons.privacy_tip_outlined,
             title: 'Privacy Policy',
             subtitle: 'Read our privacy policy',
-            onTap: () async {
-              final url = Uri.parse('https://ln247.news/privacy-policy');
-              // Use url_launcher package or show in WebView
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Opening: ${url.toString()}'),
-                  action: SnackBarAction(
-                    label: 'OK',
-                    onPressed: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const WebViewScreen(
+                    url: 'https://ln247.news/privacy-policy/',
+                    title: 'Privacy Policy',
                   ),
                 ),
               );
@@ -296,7 +293,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 builder: (context) => AlertDialog(
                   title: const Text('Delete Account'),
                   content: const Text(
-                    'Are you sure you want to delete your account? This action cannot be undone.',
+                    'This will open our account deletion page. Are you sure you want to proceed?',
                   ),
                   actions: [
                     TextButton(
@@ -306,7 +303,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     TextButton(
                       onPressed: () => Navigator.pop(context, true),
                       child: const Text(
-                        'Delete',
+                        'Continue',
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
@@ -315,12 +312,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
 
               if (confirm == true && mounted) {
-                final url = Uri.parse('https://ln247.news/wp-admin/profile.php');
-                // Open account deletion page
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Opening account settings: ${url.toString()}'),
-                    duration: const Duration(seconds: 3),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const WebViewScreen(
+                      url: 'https://ln247.news/delete-my-data/',
+                      title: 'Delete Account',
+                    ),
                   ),
                 );
               }
