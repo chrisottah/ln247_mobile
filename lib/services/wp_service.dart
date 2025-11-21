@@ -13,16 +13,18 @@ class WPService {
     }
   }
 
-  Future<List<dynamic>> fetchPosts({int? categoryId}) async {
-    // IMPORTANT: Added _embed to get featured images and ACF data
-    String url = "$baseUrl/posts?_embed&per_page=20";
+  Future<List<dynamic>> fetchPosts({int? categoryId, int page = 1, int perPage = 20}) async {
+    String url = "$baseUrl/posts?_embed&per_page=$perPage&page=$page";
     if (categoryId != null) {
       url += "&categories=$categoryId";
     }
-    
+
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       return json.decode(response.body);
+    } else if (response.statusCode == 400) {
+      // WordPress returns 400 if no more pages
+      return [];
     } else {
       throw Exception("Failed to load posts");
     }
