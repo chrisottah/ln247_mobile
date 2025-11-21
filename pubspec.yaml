@@ -21,6 +21,9 @@ dependencies:
 
   # Authentication & Storage
   shared_preferences: ^2.2.2  # ADD THIS for login persistence
+
+  onesignal_flutter: ^5.3.4 # this is for the push notifications via onesignal
+
   
   # HTTP requests
   http: ^1.1.2
@@ -36,12 +39,6 @@ dependencies:
   
   # Date formatting
   intl: ^0.18.1
-
-  # Firebase (ADD THESE 2 LINES)
-  firebase_core: ^2.24.0
-  firebase_messaging: ^14.7.0
-
-  flutter_local_notifications: ^17.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'screens/splash_screen.dart';
 import 'providers/app_state_provider.dart';
 import 'services/notification_service.dart';
@@ -26,10 +25,7 @@ Future<void> main() async {
     ),
   );
   
-  // Initialize Firebase
-  await Firebase.initializeApp();
-  
-  // Initialize notifications
+  // Initialize OneSignal notifications
   await NotificationService().initialize();
   
   runApp(const LN247App());
@@ -45,7 +41,7 @@ class LN247App extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
       ],
       child: MaterialApp(
-        title: 'LN247',
+        title: 'LN247 Mobile',
         debugShowCheckedModeBanner: false,
         navigatorKey: navigatorKey,
         theme: ThemeData(

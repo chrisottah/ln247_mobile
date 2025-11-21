@@ -45,8 +45,12 @@ class _CustomAppBarState extends State<CustomAppBar>
       leading: IconButton(
         icon: const Icon(Icons.search, color: Colors.black87, size: 26),
         onPressed: () {
-          // TODO: Navigate to search screen
-          print('Search pressed');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const SearchScreen(),
+            ),
+          );
         },
       ),
       title: Image.asset(

@@ -18,14 +18,24 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   int _currentIndex = 3; // Profile tab index
   final AuthService _authService = AuthService();
+  final NotificationService _notificationService = NotificationService();
   Map<String, dynamic>? _userData;
   bool _isLoading = true;
   bool _isLoggedIn = false;
+  bool _notificationsEnabled = true;
 
   @override
   void initState() {
     super.initState();
     _checkAuthStatus();
+    _loadNotificationSettings();
+  }
+
+  Future<void> _loadNotificationSettings() async {
+    final enabled = await _notificationService.areNotificationsEnabled();
+    setState(() {
+      _notificationsEnabled = enabled;
+    });
   }
 
   Future<void> _checkAuthStatus() async {
@@ -225,12 +235,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildSettingsTile(
             icon: Icons.notifications_outlined,
             title: 'Notifications',
-            subtitle: 'Push notifications (Coming soon)',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Coming in next update!')),
-              );
-            },
+            subtitle: _notificationsEnabled 
+                ? 'Receive updates about new posts'
+                : 'Notifications are disabled',
+            trailing: Switch(
+              value: _notificationsEnabled,
+              onChanged: (value) async {
+                setState(() => _notificationsEnabled = value);
+                await _notificationService.setNotificationsEnabled(value);
+                
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        value 
+                            ? 'Notifications enabled! You\'ll receive updates about new posts.' 
+                            : 'Notifications disabled.'
+                      ),
+                      backgroundColor: value ? Colors.green : Colors.grey,
+                    ),
+                  );
+                }
+              },
+              activeColor: Colors.orangeAccent,
+            ),
           ),
         ]),
         
@@ -464,6 +492,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String title,
     required String subtitle,
     VoidCallback? onTap,
+    Widget? trailing,
   }) {
     return ListTile(
       leading: Icon(icon, color: Colors.orangeAccent),
@@ -482,7 +511,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: Colors.grey.shade600,
         ),
       ),
-      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+      trailing: trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
       onTap: onTap,
     );
   }
